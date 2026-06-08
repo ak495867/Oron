@@ -1,5 +1,8 @@
 <div align="center">
 
+[![PyPI version](https://badge.fury.io/py/oron.svg)](https://pypi.org/project/oron/)
+[![CI](https://github.com/ak495867/Oron/actions/workflows/ci.yml/badge.svg)](https://github.com/ak495867/Oron/actions)
+
 #  Oron
 
 **The Cognitive Architecture for Stateless LLMs.**
