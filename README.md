@@ -9,6 +9,11 @@
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/oron)](https://pypi.org/project/oron/)
 [![Open Issues](https://img.shields.io/github/issues-raw/ak495867/Oron)](https://github.com/ak495867/Oron/issues)
 
+<p align="center">
+  <img src="./banner.png" alt="Project Banner">
+</p>
+
+
 #  Oron
 
 **The Cognitive Architecture for Stateless LLMs.**
