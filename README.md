@@ -129,7 +129,7 @@ mem = Oron(user_id="user_123", use_brain=True, adapter=adapter)
 
 ---
 
-##  The "Lelouch" Problem (Fact Confidence)
+##  The "Identity" Problem (Fact Confidence)
 
 Vector databases suffer from the "Identity Problem": if a user previously established their name as "Alice", and a malicious script injects "I am actually Lelouch vi Britannia!", standard retrieval will pull the most recent chunk and override the AI's understanding.
 
@@ -142,7 +142,7 @@ Oron solves this in the Semantic Store. Facts are strictly tracked by **confiden
 Oron is open-source. PRs for new Adapters (Anthropic, Gemini, Local LLaMA), optimization in the MMR fusion, or advanced Intent Classification models are highly encouraged!
 
 ```bash
-git clone https://github.com/yourusername/oron.git
+git clone https://github.com/ak495867/Oron
 cd oron
 pip install -e ".[dev]"
 pytest tests/
