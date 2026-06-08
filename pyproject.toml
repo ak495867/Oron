@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oron"
+version = "0.2.0"
+description = "Autonomous, provider-agnostic memory middleware for LLMs (Episodic, Semantic, Procedural)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+  {name = "Oron Contributors"}
+]
+dependencies = [
+    "sentence-transformers>=2.2.2",
+    "chromadb>=0.4.0",
+    "networkx>=3.0",
+    "spacy>=3.5.0",
+    "pydantic>=2.0.0",
+    "numpy"
+]
+
+[project.optional-dependencies]
+adapters = [
+    "groq",
+    "openai",
+    "litellm"
+]
+server = [
+    "fastapi",
+    "uvicorn"
+]
+ui = [
+    "rich"
+]
+langchain = [
+    "langchain-core"
+]
+all = [
+    "groq",
+    "openai",
+    "litellm",
+    "fastapi",
+    "uvicorn",
+    "rich",
+    "langchain-core"
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio",
+    "mypy>=1.0.0",
+    "build",
+    "twine"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["oron*"]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
