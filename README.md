@@ -6,7 +6,6 @@
 [![GitHub Forks](https://img.shields.io/github/forks/ak495867/Oron?style=social)](https://github.com/ak495867/Oron/network/members)
 [![GitHub Issues](https://img.shields.io/github/issues/ak495867/Oron)](https://github.com/ak495867/Oron/issues)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ak495867/Oron)](https://github.com/ak495867/Oron/commits/main)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/oron)](https://pypi.org/project/oron/)
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/oron)](https://pypi.org/project/oron/)
 [![Open Issues](https://img.shields.io/github/issues-raw/ak495867/Oron)](https://github.com/ak495867/Oron/issues)
 
