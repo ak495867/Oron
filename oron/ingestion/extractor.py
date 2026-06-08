@@ -1,18 +1,28 @@
 import spacy
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple
 
 class KGExtractor:
     """
     Knowledge Graph extractor using spaCy for NER and relation extraction.
     Pulls structured facts (subject, relation, object) from text.
+    Lazy-loads the spaCy model on first use — safe to instantiate without the model present.
     """
+
     def __init__(self, model_name: str = "en_core_web_sm"):
-        try:
-            self.nlp = spacy.load(model_name)
-        except OSError:
-            # Fallback/Instruction if model not found
-            # In a real app, we might want to auto-download or raise error
-            raise ImportError(f"spaCy model '{model_name}' not found. Run 'python -m spacy download {model_name}'")
+        self.model_name = model_name
+        self._nlp = None
+
+    @property
+    def nlp(self):
+        if self._nlp is None:
+            try:
+                self._nlp = spacy.load(self.model_name)
+            except OSError:
+                raise ImportError(
+                    f"spaCy model '{self.model_name}' not found. "
+                    f"Run: python -m spacy download {self.model_name}"
+                )
+        return self._nlp
 
     def extract_facts(self, text: str) -> List[Tuple[str, str, str]]:
         doc = self.nlp(text)
