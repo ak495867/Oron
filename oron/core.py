@@ -16,6 +16,8 @@ from .brain.processor import BrainProcessor
 from .utils.visualizer import GraphVisualizer
 import time
 
+_oron_instances: Dict[str, "Oron"] = {}
+
 def remember(user_id: str):
     """
     Decorator to automatically wrap a function with Oron.
@@ -24,7 +26,9 @@ def remember(user_id: str):
     def decorator(func: Callable):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            mem = Oron(user_id=user_id)
+            if user_id not in _oron_instances:
+                _oron_instances[user_id] = Oron(user_id=user_id)
+            mem = _oron_instances[user_id]
             prompt = args[0] if args else kwargs.get("prompt", "")
             recall_results = mem._recall_raw(str(prompt))
             memories = recall_results.get("context", [])
@@ -135,7 +139,6 @@ class Oron:
         Store a new memory. v0.2 offloads to background thread to prevent blocking.
         """
         if self.use_brain:
-            # We use a thread to run the async aremember
             def run_async():
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
@@ -178,12 +181,9 @@ class Oron:
         # 1. Fetch Episodic
         episodic_results = self.episodic_store.search(self.user_id, query_emb, limit=limit * 2)
         for r in episodic_results:
-            # Re-calculate embedding for MMR later (Chroma doesn't return embeddings by default in query)
-            # Optimization: could cache this or ask Chroma for include=["embeddings"]
             emb = self.embedder.embed_text(r["content"]) 
-            # Apply Exponential Decay based on timestamp
             timestamp = r["metadata"].get("timestamp", time.time())
-            importance = 0.5 # Default episodic importance
+            importance = 0.5
             salience = self.decay.calculate_episodic_salience(timestamp, importance)
             
             candidates.append({
@@ -194,12 +194,18 @@ class Oron:
             })
 
         # 2. Fetch Semantic
-        query_doc = self.extractor.nlp(query)
-        entities = [ent.text for ent in query_doc.ents] + [token.text for token in query_doc if token.pos_ in ["NOUN", "PROPN"]]
+        try:
+            query_doc = self.extractor.nlp(query)
+            entities = [ent.text for ent in query_doc.ents] + [
+                token.text for token in query_doc if token.pos_ in ["NOUN", "PROPN"]
+            ]
+        except ImportError:
+            entities = query.split()  # fallback: treat every word as a potential entity
         
         seen_facts = set()
         for entity in entities:
-            if len(entity) < 3: continue
+            if len(entity) < 3:
+                continue
             facts = self.semantic_store.get_related(self.user_id, entity.lower())
             for fact in facts:
                 s, r, o = fact["subject"], fact["relation"], fact["object"]
@@ -208,7 +214,6 @@ class Oron:
                 if fact_str not in seen_facts:
                     seen_facts.add(fact_str)
                     emb = self.embedder.embed_text(fact_str)
-                    # Semantic facts resist time decay based on confidence
                     salience = self.decay.calculate_semantic_salience(fact.get("confidence", 1))
                     candidates.append({
                         "type": "semantic",
@@ -218,13 +223,10 @@ class Oron:
                     })
 
         # 3. Fetch Procedural
-        # Procedural memories are "rules" or "preferences" that govern behavior
         all_procedural = self.procedural_store.get_all(self.user_id)
         for k, v in all_procedural.items():
             rule_str = f"Preference/Rule ({k}): {v}"
             emb = self.embedder.embed_text(rule_str)
-            # Procedural memories use Usage-Gated decay
-            # For now, we mock usage count as 1 and time as now
             salience = self.decay.calculate_procedural_salience(1, time.time())
             candidates.append({
                 "type": "procedural",
@@ -239,8 +241,8 @@ class Oron:
             candidates.append({
                 "type": "procedural",
                 "content": f"User Identity: The user's name is {user_name}.",
-                "embedding": query_emb, # Max relevance
-                "salience": 1.0 # Max salience
+                "embedding": query_emb,
+                "salience": 1.0
             })
 
         # 4. Fuse & MMR Re-rank
