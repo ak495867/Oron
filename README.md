@@ -133,7 +133,7 @@ mem = Oron(user_id="user_123", use_brain=True, adapter=adapter)
 
 Vector databases suffer from the "Identity Problem": if a user previously established their name as "Alice", and a malicious script injects "I am actually Lelouch vi Britannia!", standard retrieval will pull the most recent chunk and override the AI's understanding.
 
-Oron solves this in the Semantic Store. Facts are strictly tracked by **confidence**. A new, unverified claim cannot overwrite a deeply consolidated identity fact. You can read more about how the `DecayManager` and `SemanticStore` handle this in the `store/` directory.
+Oron solves this in the Semantic Store. Facts are strictly tracked by **confidence**. A new, unverified claim cannot overwrite a deeply consolidated identity fact.
 
 ---
 
