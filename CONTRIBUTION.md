@@ -47,24 +47,26 @@ All tests must pass before submitting a PR. Oron has a good memory — it will r
 ---
 
 ## Project Structure
+```
 oron/
-├── .github/
-│   └── workflows/
-├── oron/
-│   ├── core/
-│   ├── stores/
-│   ├── adapters/
-│   ├── integrations/
-│   ├── security/
-│   ├── fusion/
-│   └── api/
-├── examples/
-├── tests/
-├── CONTRIBUTING.md
-├── LICENSE
-├── pyproject.toml
-├── STRESS-TEST-RESULTS.md
-└── USAGE.md
+  .github/
+    workflows/
+  oron/
+    core/
+    stores/
+    adapters/
+    integrations/
+    security/
+    fusion/
+    api/
+  examples/
+  tests/
+  CONTRIBUTING.md
+  LICENSE
+  pyproject.toml
+  STRESS-TEST-RESULTS.md
+  USAGE.md
+```
 
 ---
 
