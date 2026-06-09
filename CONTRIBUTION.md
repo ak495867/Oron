@@ -46,6 +46,21 @@ All tests must pass before submitting a PR. Oron has a good memory — it will r
 
 ---
 
+## Project Structure
+oron/
+├── oron/
+│   ├── core/           # Memory state machine, decay engine, consolidation worker
+│   ├── stores/         # Episodic (ChromaDB), Semantic (NetworkX), Procedural (SQLite)
+│   ├── adapters/       # LLM provider adapters (Groq, LiteLLM, Custom)
+│   ├── integrations/   # LangChain (OronRetriever, OronChatMessageHistory)
+│   ├── security/       # Memory Sandbox, prompt injection defense
+│   └── api/            # FastAPI REST server
+├── examples/           # Runnable quickstart scripts
+├── tests/              # Unit and integration tests
+├── USAGE.md
+├── STRESS-TEST-RESULTS.md
+└── pyproject.toml
+
 ---
 
 ## Priority Contribution Areas
