@@ -1,5 +1,6 @@
 <div align="center">
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![PyPI version](https://badge.fury.io/py/oron.svg)](https://pypi.org/project/oron/)
 [![CI](https://github.com/ak495867/Oron/actions/workflows/ci.yml/badge.svg)](https://github.com/ak495867/Oron/actions)
 [![GitHub Stars](https://img.shields.io/github/stars/ak495867/Oron?style=social)](https://github.com/ak495867/Oron/stargazers)
