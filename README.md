@@ -152,9 +152,11 @@ Oron solves this in the Semantic Store. Facts are strictly tracked by **confiden
 
 ---
 
-##  Contributing
+## Contributing
 
-Oron is open-source. PRs for new Adapters (Anthropic, Gemini, Local LLaMA), optimization in the MMR fusion, or advanced Intent Classification models are highly encouraged!
+Oron is open-source and licensed under Apache 2.0. PRs for new Adapters (Anthropic, Gemini, Local LLaMA), optimization in the MMR fusion, or advanced Intent Classification models are highly encouraged!
+
+> **Attribution required:** If you modify or distribute Oron, please document your changes and credit the original project as described in the [NOTICE](NOTICE) file.
 
 ```bash
 git clone https://github.com/ak495867/Oron
@@ -162,6 +164,19 @@ cd oron
 pip install -e ".[dev]"
 pytest tests/
 ```
+
+License
+
+```markdown
+## License
+
+Copyright 2026 [ak495867](https://github.com/ak495867)
+
+Licensed under the [Apache License 2.0](LICENSE). If you use or build on Oron, please credit the project and document any modifications per the [NOTICE](NOTICE) file.
+```
+
+---
+
 
 <div align="center">
   <i>Built for the next generation of stateful AI.</i>
