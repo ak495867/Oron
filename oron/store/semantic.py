@@ -57,26 +57,24 @@ class SemanticStore:
                 self._save()
                 return
 
-        # 2. Check for Contradictions (Same S-R, Different O)
-        # e.g., user -> diet -> vegan vs user -> diet -> carnivore
-        edge_to_remove = None
+            # Define relations that should trigger a strict overwrite
+    MUTUALLY_EXCLUSIVE_RELATIONS = {"diet", "name", "birthplace", "age", "current_location"}
+
+            # 2. Check for Contradictions (Same S-R, Different O)
+    edge_to_remove = None
+    if relation.lower() in MUTUALLY_EXCLUSIVE_RELATIONS:
         for _, existing_obj, data in list(self.graph.out_edges(s_node, data=True)):
             if data.get("relation") == relation:
                 existing_conf = data.get("confidence", 1)
-                
-                # If it's a temporal state update (e.g. "I am now X"), 
-                # new_conf will often be 1 from a single mention.
-                # But we want state changes to overwrite old facts if explicitly stated.
-                # For now, let's treat any NEW fact with the same relation 
-                # as an overwrite unless the old fact is heavily consolidated (>2).
+
                 if existing_conf > 2 and new_conf <= 1:
-                    # Existing fact is heavily confirmed, ignore the one-off contradiction
+                            # Existing fact is heavily confirmed, ignore the one-off contradiction
                     return
                 else:
-                    # Overwrite the old state with the new one
+                            # Overwrite the old state with the new one
                     edge_to_remove = existing_obj
                     break
-        
+
         if edge_to_remove:
             self.graph.remove_edge(s_node, edge_to_remove)
         

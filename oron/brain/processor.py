@@ -36,11 +36,15 @@ class BrainProcessor:
         """
         prompt = f"Analyze this message for long-term storage:\n'{text}'"
         try:
-            response_text = self.adapter.chat(
-                prompt, 
-                memories=[], 
+            kwargs = {}
+            if not getattr(self.adapter, 'model', None):
+                kwargs['model'] = "llama-3.1-8b-instant"
+
+            response_text = self. adapter. chat(
+                prompt,
+                memories=[],
                 system_prompt=self.system_prompt,
-                model="llama-3.1-8b-instant"
+                ** kwargs
             )
             return self._parse_json(response_text)
         except Exception as e:
@@ -52,11 +56,15 @@ class BrainProcessor:
         """
         prompt = f"Analyze this message for long-term storage:\n'{text}'"
         try:
-            response_text = await self.adapter.achat(
-                prompt, 
-                memories=[], 
+            kwargs = {}
+            if not getattr(self.adapter, 'model', None):
+                kwargs['model'] = "llama-3.1-8b-instant"
+
+            response_text = self. adapter. chat(
+                prompt,
+                memories=[],
                 system_prompt=self.system_prompt,
-                model="llama-3.1-8b-instant"
+                ** kwargs
             )
             return self._parse_json(response_text)
         except Exception as e:
