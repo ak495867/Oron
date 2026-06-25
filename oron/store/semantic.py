@@ -57,26 +57,26 @@ class SemanticStore:
                 self._save()
                 return
 
-            # Define relations that should trigger a strict overwrite
-    MUTUALLY_EXCLUSIVE_RELATIONS = {"diet", "name", "birthplace", "age", "current_location"}
+        # Define relations that should trigger a strict overwrite
+        MUTUALLY_EXCLUSIVE_RELATIONS = {"diet", "name", "birthplace", "age", "current_location"}
 
-            # 2. Check for Contradictions (Same S-R, Different O)
-    edge_to_remove = None
-    if relation.lower() in MUTUALLY_EXCLUSIVE_RELATIONS:
-        for _, existing_obj, data in list(self.graph.out_edges(s_node, data=True)):
-            if data.get("relation") == relation:
-                existing_conf = data.get("confidence", 1)
+        # 2. Check for Contradictions (Same S-R, Different O)
+        edge_to_remove = None
+        if relation.lower() in MUTUALLY_EXCLUSIVE_RELATIONS:
+            for _, existing_obj, data in list(self.graph.out_edges(s_node, data=True)):
+                if data.get("relation") == relation:
+                    existing_conf = data.get("confidence", 1)
 
-                if existing_conf > 2 and new_conf <= 1:
-                            # Existing fact is heavily confirmed, ignore the one-off contradiction
-                    return
-                else:
-                            # Overwrite the old state with the new one
-                    edge_to_remove = existing_obj
-                    break
+                    if existing_conf > 2 and new_conf <= 1:
+                        # Existing fact is heavily confirmed, ignore the one-off contradiction
+                        return
+                    else:
+                        # Overwrite the old state with the new one
+                        edge_to_remove = existing_obj
+                        break
 
-        if edge_to_remove:
-            self.graph.remove_edge(s_node, edge_to_remove)
+            if edge_to_remove:
+                self.graph.remove_edge(s_node, edge_to_remove)
         
         # 3. Add the New Fact
         self.graph.add_edge(
