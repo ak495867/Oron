@@ -114,7 +114,7 @@ Runnable, real-world examples for specific use cases — customer support agents
 ```
 5. **Submit a Pull Request** against `main`
 
-Do not commit directly to `main`. All changes go through PR review. Yes, this includes you.
+Do not commit directly to `main`. All changes go through PR review. Yes, this includes you. **I had a PR review too ig, btw would be great if u guys could drop a follow (not me farming for follows lol)**
 
 ---
 
