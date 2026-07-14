@@ -133,7 +133,7 @@ black oron/
 isort oron/
 ```
 
-Run this before every commit. Your future reviewers will thank you.
+Run this before every commit. Your future reviewers will thank you. (I never ran black on it🙈 , Plz don't flame me)
 
 ---
 
