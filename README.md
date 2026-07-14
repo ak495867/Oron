@@ -169,7 +169,7 @@ pytest tests/
 
 Copyright 2026 [ak495867](https://github.com/ak495867)
 
-Licensed under the [Apache License 2.0](LICENSE). If you use or build on Oron, please credit the project and document any modifications per the [NOTICE](NOTICE.md) file.
+Licensed under the [Apache License 2.0](LICENSE). If you use or build on Oron, please credit the project and document any modifications.
 
 ---
 
