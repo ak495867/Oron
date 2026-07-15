@@ -2,6 +2,7 @@ from oron import Oron
 from oron.adapters.groq import GroqAdapter
 import os
 
+
 def main():
     # Ensure GROQ_API_KEY is set
     api_key = os.environ.get("GROQ_API_KEY")
@@ -24,8 +25,9 @@ def main():
 
         # Oron handles retrieval, injection, and ingestion automatically
         response = mem.chat(prompt, adapter=adapter)
-        
+
         print(f"\nAI: {response}\n")
+
 
 if __name__ == "__main__":
     main()

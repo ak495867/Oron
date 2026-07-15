@@ -1,6 +1,7 @@
 import spacy
 from typing import List, Tuple
 
+
 class KGExtractor:
     """
     Knowledge Graph extractor using spaCy for NER and relation extraction.
@@ -27,7 +28,7 @@ class KGExtractor:
     def extract_facts(self, text: str) -> List[Tuple[str, str, str]]:
         doc = self.nlp(text)
         facts = []
-        
+
         # Simple rule-based extraction for demonstration
         # In a more advanced version, use dependency parsing
         for sent in doc.sents:
@@ -35,7 +36,7 @@ class KGExtractor:
             subj = ""
             verb = ""
             obj = ""
-            
+
             for token in sent:
                 if "subj" in token.dep_:
                     subj = token.text
@@ -43,13 +44,13 @@ class KGExtractor:
                     verb = token.lemma_
                 if "obj" in token.dep_:
                     obj = token.text
-            
+
             if subj and verb and obj:
                 facts.append((subj, verb, obj))
-        
+
         # Also extract entities as potential nodes
         for ent in doc.ents:
             # We could do something with entities here
             pass
-            
+
         return facts

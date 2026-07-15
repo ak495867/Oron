@@ -4,4 +4,10 @@ from .openai import OpenAIAdapter
 from .custom import CustomAdapter
 from .litellm import LiteLLMAdapter
 
-__all__ = ["BaseAdapter", "GroqAdapter", "OpenAIAdapter", "CustomAdapter", "LiteLLMAdapter"]
+__all__ = [
+    "BaseAdapter",
+    "GroqAdapter",
+    "OpenAIAdapter",
+    "CustomAdapter",
+    "LiteLLMAdapter",
+]

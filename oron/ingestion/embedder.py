@@ -1,11 +1,13 @@
 from sentence_transformers import SentenceTransformer
 from typing import List
 
+
 class Embedder:
     """
-    Embedding engine using sentence-transformers for local, 
+    Embedding engine using sentence-transformers for local,
     zero-API dependency embeddings.
     """
+
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         self.model = SentenceTransformer(model_name)
 

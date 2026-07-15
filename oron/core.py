@@ -18,11 +18,13 @@ import time
 
 _oron_instances: Dict[str, "Oron"] = {}
 
+
 def remember(user_id: str):
     """
     Decorator to automatically wrap a function with Oron.
     Retrieves context before call and remembers prompt after call.
     """
+
     def decorator(func: Callable):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -33,29 +35,33 @@ def remember(user_id: str):
             recall_results = mem._recall_raw(str(prompt))
             memories = recall_results.get("context", [])
             procedural = recall_results.get("procedural", [])
-            
+
             context = "\n".join([f"- {m}" for m in memories])
             system_rules = "\n".join([f"- {p}" for p in procedural])
-            
+
             augmented_prompt = f"System Rules:\n{system_rules}\n\nBackground:\n{context}\n\nUser: {prompt}"
             result = func(augmented_prompt, *args[1:], **kwargs)
             mem.remember(str(prompt))
             return result
+
         return wrapper
+
     return decorator
+
 
 class Oron:
     """
     Main API for Oron. Orchestrates ingestion, storage, and retrieval.
     v0.2 supports Async ingestion and Content/Intent split.
     """
+
     def __init__(
-        self, 
-        user_id: str, 
+        self,
+        user_id: str,
         db_dir: str = "./oron_data",
         model_name: str = "all-MiniLM-L6-v2",
         use_brain: bool = False,
-        adapter: Optional[Any] = None
+        adapter: Optional[Any] = None,
     ):
         self.user_id = user_id
         self.embedder = Embedder(model_name=model_name)
@@ -69,9 +75,11 @@ class Oron:
         self.use_brain = use_brain
         self.brain = BrainProcessor(adapter) if use_brain and adapter else None
         self.adapter = adapter
-        self.consolidator = MemoryConsolidator(
-            self.episodic_store, self.semantic_store, adapter
-        ) if adapter else None
+        self.consolidator = (
+            MemoryConsolidator(self.episodic_store, self.semantic_store, adapter)
+            if adapter
+            else None
+        )
         self.visualizer = GraphVisualizer(self.semantic_store)
         self.executor = ThreadPoolExecutor(max_workers=4)
 
@@ -89,7 +97,10 @@ class Oron:
         """
         if self.use_brain and self.brain:
             analysis = await self.brain.aanalyze(text)
-            if analysis.get("is_injection", False) or analysis.get("importance", 0.0) < 0.3:
+            if (
+                analysis.get("is_injection", False)
+                or analysis.get("importance", 0.0) < 0.3
+            ):
                 return
 
             # 1. Episodic
@@ -103,14 +114,22 @@ class Oron:
                 if subj.lower() in ["i", "me", "my", "user", "person"]:
                     subj = "user"
                 self.semantic_store.add_fact(
-                    self.user_id, f"[CLAIM] {subj}", fact["relation"], fact["object"],
-                    metadata={"source": "user_claim", "permanence": analysis.get("permanence")}
+                    self.user_id,
+                    f"[CLAIM] {subj}",
+                    fact["relation"],
+                    fact["object"],
+                    metadata={
+                        "source": "user_claim",
+                        "permanence": analysis.get("permanence"),
+                    },
                 )
 
             # 3. Procedural
             for pref in analysis.get("preferences", []):
                 self.procedural_store.set(self.user_id, pref["key"], pref["value"])
-                self.semantic_store.add_fact(self.user_id, "user", pref["key"], str(pref["value"]))
+                self.semantic_store.add_fact(
+                    self.user_id, "user", pref["key"], str(pref["value"])
+                )
         else:
             # Fallback to rule-based sync
             self._remember_sync(text)
@@ -129,7 +148,7 @@ class Oron:
             words = text.split()
             for i, word in enumerate(words):
                 if word.lower() in ["is", "called"] and i + 1 < len(words):
-                    name = words[i+1].strip(".,!?")
+                    name = words[i + 1].strip(".,!?")
                     self.procedural_store.set(self.user_id, "user_name", name)
                     self.semantic_store.add_fact(self.user_id, "user", "name", name)
                     break
@@ -139,16 +158,20 @@ class Oron:
         Store a new memory. v0.2 offloads to background thread to prevent blocking.
         """
         if self.use_brain:
+
             def run_async():
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 loop.run_until_complete(self.aremember(text))
                 loop.close()
+
             self.executor.submit(run_async)
         else:
             self._remember_sync(text)
 
-    async def achat(self, prompt: str, adapter: Optional[Any] = None, **kwargs: Any) -> str:
+    async def achat(
+        self, prompt: str, adapter: Optional[Any] = None, **kwargs: Any
+    ) -> str:
         memories = self.recall(prompt)
         active_adapter = adapter or self.adapter
         if active_adapter:
@@ -172,26 +195,30 @@ class Oron:
 
     def _recall_raw(self, query: str, limit: int = 5) -> Dict[str, List[str]]:
         """
-        Internal method that fetches raw candidates, applies decay, 
+        Internal method that fetches raw candidates, applies decay,
         and fuses via MMR. Returns structured memories (context vs procedural).
         """
         query_emb = self.embedder.embed_text(query)
         candidates = []
 
         # 1. Fetch Episodic
-        episodic_results = self.episodic_store.search(self.user_id, query_emb, limit=limit * 2)
+        episodic_results = self.episodic_store.search(
+            self.user_id, query_emb, limit=limit * 2
+        )
         for r in episodic_results:
-            emb = self.embedder.embed_text(r["content"]) 
+            emb = self.embedder.embed_text(r["content"])
             timestamp = r["metadata"].get("timestamp", time.time())
             importance = 0.5
             salience = self.decay.calculate_episodic_salience(timestamp, importance)
-            
-            candidates.append({
-                "type": "episodic",
-                "content": r["content"],
-                "embedding": emb,
-                "salience": salience
-            })
+
+            candidates.append(
+                {
+                    "type": "episodic",
+                    "content": r["content"],
+                    "embedding": emb,
+                    "salience": salience,
+                }
+            )
 
         # 2. Fetch Semantic
         try:
@@ -201,7 +228,7 @@ class Oron:
             ]
         except ImportError:
             entities = query.split()  # fallback: treat every word as a potential entity
-        
+
         seen_facts = set()
         for entity in entities:
             if len(entity) < 3:
@@ -210,17 +237,21 @@ class Oron:
             for fact in facts:
                 s, r, o = fact["subject"], fact["relation"], fact["object"]
                 fact_str = f"Fact: {s} {r} {o}"
-                
+
                 if fact_str not in seen_facts:
                     seen_facts.add(fact_str)
                     emb = self.embedder.embed_text(fact_str)
-                    salience = self.decay.calculate_semantic_salience(fact.get("confidence", 1))
-                    candidates.append({
-                        "type": "semantic",
-                        "content": fact_str,
-                        "embedding": emb,
-                        "salience": salience
-                    })
+                    salience = self.decay.calculate_semantic_salience(
+                        fact.get("confidence", 1)
+                    )
+                    candidates.append(
+                        {
+                            "type": "semantic",
+                            "content": fact_str,
+                            "embedding": emb,
+                            "salience": salience,
+                        }
+                    )
 
         # 3. Fetch Procedural
         all_procedural = self.procedural_store.get_all(self.user_id)
@@ -228,30 +259,32 @@ class Oron:
             rule_str = f"Preference/Rule ({k}): {v}"
             emb = self.embedder.embed_text(rule_str)
             salience = self.decay.calculate_procedural_salience(1, time.time())
-            candidates.append({
-                "type": "procedural",
-                "content": rule_str,
-                "embedding": emb,
-                "salience": salience
-            })
-            
+            candidates.append(
+                {
+                    "type": "procedural",
+                    "content": rule_str,
+                    "embedding": emb,
+                    "salience": salience,
+                }
+            )
+
         # Also always include User Identity as a top-level procedural fact
         user_name = self.procedural_store.get(self.user_id, "user_name")
         if user_name:
-            candidates.append({
-                "type": "procedural",
-                "content": f"User Identity: The user's name is {user_name}.",
-                "embedding": query_emb,
-                "salience": 1.0
-            })
+            candidates.append(
+                {
+                    "type": "procedural",
+                    "content": f"User Identity: The user's name is {user_name}.",
+                    "embedding": query_emb,
+                    "salience": 1.0,
+                }
+            )
 
         # 4. Fuse & MMR Re-rank
         ranked_candidates = self.retrieval_engine.fuse_and_rerank(
-            query_emb, 
-            candidates, 
-            top_k=limit + 2
+            query_emb, candidates, top_k=limit + 2
         )
-        
+
         # 5. Separate outputs
         context_memories = []
         procedural_memories = []
@@ -260,7 +293,7 @@ class Oron:
                 procedural_memories.append(c["content"])
             else:
                 context_memories.append(c["content"])
-                
+
         return {"context": context_memories, "procedural": procedural_memories}
 
     def recall(self, query: str, limit: int = 5) -> List[str]:

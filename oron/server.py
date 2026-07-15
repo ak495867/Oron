@@ -13,21 +13,24 @@ app = FastAPI(title="Oron API", version="0.2.0", description="REST API for Oron"
 # For this server mode, we'll keep a cache of active Oron instances.
 instances: Dict[str, Oron] = {}
 
+
 def get_instance(user_id: str) -> Oron:
     if user_id not in instances:
         api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
-            raise HTTPException(status_code=500, detail="GROQ_API_KEY environment variable not set.")
-        
+            raise HTTPException(
+                status_code=500, detail="GROQ_API_KEY environment variable not set."
+            )
+
         adapter = GroqAdapter(api_key=api_key)
         # Using a dedicated directory for the server
         db_dir = os.environ.get("MEMORYOS_DB_DIR", "./oron_server_data")
-        
+
         instances[user_id] = Oron(
-            user_id=user_id, 
-            db_dir=f"{db_dir}/{user_id}", 
-            use_brain=True, 
-            adapter=adapter
+            user_id=user_id,
+            db_dir=f"{db_dir}/{user_id}",
+            use_brain=True,
+            adapter=adapter,
         )
     return instances[user_id]
 
@@ -37,17 +40,21 @@ class ChatRequest(BaseModel):
     prompt: str
     model: Optional[str] = "llama-3.3-70b-versatile"
 
+
 class ChatResponse(BaseModel):
     response: str
-    
+
+
 class RememberRequest(BaseModel):
     user_id: str
     text: str
+
 
 class RecallRequest(BaseModel):
     user_id: str
     query: str
     limit: Optional[int] = 5
+
 
 class RecallResponse(BaseModel):
     memories: List[str]
@@ -66,6 +73,7 @@ async def chat_endpoint(req: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.post("/remember")
 async def remember_endpoint(req: RememberRequest, background_tasks: BackgroundTasks):
     """
@@ -74,6 +82,7 @@ async def remember_endpoint(req: RememberRequest, background_tasks: BackgroundTa
     mem = get_instance(req.user_id)
     background_tasks.add_task(mem.aremember, req.text)
     return {"status": "Processing in background"}
+
 
 @app.post("/recall", response_model=RecallResponse)
 def recall_endpoint(req: RecallRequest):
@@ -84,6 +93,7 @@ def recall_endpoint(req: RecallRequest):
     memories = mem.recall(req.query, limit=req.limit)
     return RecallResponse(memories=memories)
 
+
 @app.post("/consolidate")
 def consolidate_endpoint(user_id: str):
     """
@@ -93,9 +103,11 @@ def consolidate_endpoint(user_id: str):
     promoted = mem.consolidate()
     return {"status": "success", "promoted_facts": promoted}
 
+
 def serve(host: str = "0.0.0.0", port: int = 8765):
     """Run the FastAPI server via Uvicorn."""
     uvicorn.run(app, host=host, port=port)
+
 
 if __name__ == "__main__":
     serve()
